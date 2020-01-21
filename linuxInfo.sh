@@ -26,6 +26,36 @@ ip maddress
 echo -e "  IP Addresses For All Interfaces:" `ip a | grep -o "inet .*" | cut -d' ' -f2`
 echo -e "  Interfaces In Promiscuous Mode:"  `ip a | grep -E "PROMISC" | cut -d' ' -f2 | cut -d':' -f1`
 echo -e "  Established Network Connections:"
-sudo netstat -antp | grep -E "ESTABLISHED"
+netstat -antp | grep -E "ESTABLISHED" 2> /dev/null
+
+echo ""
+echo -e "----Users----"
+echo "Users Currently Logged In:"
+users
+echo "All Users That Have Logged In:"
+awk -F: '$3 >= 500 {print $1}' /etc/passwd
+echo "Users with UID 0:"
+awk -F: '$3 == 0 {print $1}' /etc/passwd
+echo "All SUID Files:"
+find / -perm /4000 2> /dev/null
+echo "---Processes and Open Files---"
+echo "All Processes:"
+ps -eaf | top
+echo "All Files Opened By nc:"
+lsof -c nc | awk -F' ' ' $11!=""{print $11}'
+echo "All Opened and Unlinked Files:"
+lsof -a +L1 | awk -F' ' ' $11!=""{print $10}'
+
+echo "----MISC----"
+echo "Files In /home That Have Been Modified In The Last Day:"
+find /home -mtime -1
+echo "Scheduled Tasks For Root"
+sudo crontab -l
+echo "Auth Log:"
+tail /var/log/auth.log
+echo -e "\nSys Log:"
+tail /var/log/syslog
+echo "Command History:"
+history
 
 echo ""
